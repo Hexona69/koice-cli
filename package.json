@@ -10,10 +10,9 @@
     "clean": "rimraf dist/*",
     "make": "npm run clean && npm run compile",
     "build-clean": "rimraf build/*",
-    "build-darwin": "nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target mac --build --fake-argv --output build/koice-darwin-amd64",
-    "build-win": "nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target windows --build --fake-argv --output build/koice-windows-amd64 --ico assets/icon.ico",
-    "build-linux": "nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target linux --build --fake-argv --output build/koice-linux-amd64",
-    "build": "npm run make && npm run build-clean && npm run build-darwin && npm run build-win && npm run build-linux "
+    "build-darwin": "npm run make && npm run build-clean && nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target mac --build --fake-argv --output build/koice-darwin-amd64",
+    "build-win": "npm run make && npm run build-clean && nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target windows --build --fake-argv --output build/koice-windows-amd64 --ico assets/icon.ico",
+    "build-linux": "npm run make && npm run build-clean && nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target linux --build --fake-argv --output build/koice-linux-amd64"
   },
   "repository": {
     "type": "git",
@@ -28,11 +27,13 @@
   "dependencies": {
     "argparse": "^2.0.1",
     "delay": "^5.0.0",
+    "fluent-ffmpeg": "^2.1.2",
     "koice": "^0.1.11",
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {
     "@types/argparse": "^2.0.10",
+    "@types/fluent-ffmpeg": "^2.1.20",
     "@types/node": "^18.11.17",
     "@types/readline-sync": "^1.4.4"
   },
