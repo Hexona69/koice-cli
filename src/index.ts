@@ -27,16 +27,6 @@ parser.add_argument('-i', '--input', {
 
 const args = parser.parse_args()
 
-console.log(args);
-
-
-function printProgress(content: string) {
-    process.stdout.cursorTo(0);
-    process.stdout.write(content);
-
-    // process.stdout.write(content + '\n');
-}
-
 var fileP: fs.ReadStream | undefined;
 var input: string = "";
 
@@ -71,28 +61,30 @@ var input: string = "";
         if (skipOnce) skipOnce = false;
         else input = await rl.question('')
         if (fs.existsSync(input)) {
-            console.log(input);
+            console.log(`Start streaming: "${input}"`);
+            // console.log(input);
             if (previousStream) {
                 previousStream = false;
                 fileP?.destroy();
-                await delay(500);
+                await delay(50);
             }
 
             // console.log(444444);
-            await delay(500);
             // console.log(5555555);
             previousStream = true;
-            fileP = fs.createReadStream(input, { highWaterMark: 3 });
-            await delay(500);
-            fileP.on('data', (chunk) => {
-                printProgress(`${input} | ${Date.now()} | ${previousStream}`)
-                if (previousStream) {
+            fileP = fs.createReadStream(input);
+            await delay(50);
+            fileP.on('readable', async () => {
+                var chunk;
+                while (previousStream && (chunk = fileP?.read(16 * 64))) {
+                    if (!previousStream) break;
                     stream.push(chunk);
-                } else {
-                    stream.push("");
-                    fileP?.removeAllListeners();
+                    await delay(125);
                 }
+                fileP?.close
             })
+        } else {
+            console.log(`Cannot find file "${input}"`);
         }
     }
 })()

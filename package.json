@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
+  "bin": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
     "build": "tsc && copyfiles -u 1 \"src/**/*\" -e \"src/**/*.ts\" dist",
@@ -30,5 +31,12 @@
     "@types/argparse": "^2.0.10",
     "@types/node": "^18.11.17",
     "@types/readline-sync": "^1.4.4"
+  },
+  "pkg": {
+    "scripts": "dist/**/*.js",
+    "targets": [
+      "node16-macos-x64"
+    ],
+    "outputPath": "build"
   }
 }
