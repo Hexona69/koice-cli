@@ -10,10 +10,10 @@
     "clean": "rimraf dist/*",
     "make": "npm run clean && npm run compile",
     "build-clean": "rimraf build/*",
-    "build-darwin": "nexe dist/index.js --resource \"./node_modules/**/*\" --target mac --fake-argv --build --output build/koice-darwin-amd64",
-    "build-windows": "nexe dist/index.js --resource \"./node_modules/**/*\" --target windows --fake-argv --build --output build/koice-windows-amd64",
-    "build-linux": "nexe dist/index.js --resource \"./node_modules/**/*\" --target linux --fake-argv --build --output build/koice-linux-amd64",
-    "build": "npm run make && npm run build-darwin && npm run build-windows && npm run build-linux"
+    "build-darwin": "nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target mac --build --fake-argv --output build/koice-darwin-amd64",
+    "build-win": "nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target windows --build --fake-argv --output build/koice-windows-amd64 --ico assets/icon.ico",
+    "build-linux": "nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target linux --build --fake-argv --output build/koice-linux-amd64",
+    "build": "npm run make && npm run build-clean && npm run build-darwin && npm run build-win && npm run build-linux "
   },
   "repository": {
     "type": "git",
