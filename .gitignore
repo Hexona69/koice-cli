@@ -107,3 +107,5 @@ src/configs/auth*
 src/configs/data*
 
 build
+
+.DS_Store
