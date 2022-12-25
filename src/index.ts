@@ -119,9 +119,11 @@ function write(content: string) {
     pause                        Pause the stream
     resume                       Resume the stream
     skip                         Skip current file
+    clear                        Clear queue
     random, suffle               Randomize the queue
-    queue                        See current queue`);
+    list, queue                  See current queue`);
                     break;
+                case 'next':
                 case 'skip':
                     await next();
                     break;
@@ -143,9 +145,12 @@ function write(content: string) {
                     write("Queue cleared");
                     queue = [];
                     break;
+                case 'list':
                 case 'queue':
                     write('Queue:\n    ' + queue.join('\n    '));
                     break;
+                case 'exit':
+                    process.exit(0);
                 default:
                     write(`Cannot recognize file or command "${input}"`);
                     break;
@@ -169,11 +174,11 @@ async function playback(file: string) {
     if (previousStream) {
         write(`Stopping prevoius stream...`);
         previousStream = false;
-        await delay(200);
+        await delay(150);
         ffmpegInstance?.kill("SIGSTOP");
         fileP?.removeAllListeners();
         fileP?.destroy();
-        await delay(900);
+        // await delay(100);
         fileP = new PassThrough();
         // return;
     }
@@ -198,7 +203,7 @@ async function playback(file: string) {
     // .outputFormat('opus');
     ffmpegInstance
         .stream(fileP)
-    await delay(200);
+    await delay(100);
     var bytes = 0;
     var bfs: any[] = [];
     fileP.on('data', (chunk) => {
@@ -208,8 +213,8 @@ async function playback(file: string) {
         var now = 0;
         var buffer = Buffer.concat(bfs);
         // var rate = 11025;
-        var rate = 24000;
-        while (Date.now() - lastRead < 2000);
+        var rate = 12000;
+        while (Date.now() - lastRead < 150);
         write(`Start streaming: "${file}"`);
         while (previousStream && now <= buffer.length) {
             if (!paused) {
@@ -225,7 +230,7 @@ async function playback(file: string) {
                 }
                 now += rate;
             }
-            await delay(250);
+            await delay(125);
         }
         write("Stream ended");
         if (previousStream) {
