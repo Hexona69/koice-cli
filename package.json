@@ -1,6 +1,6 @@
 {
-  "name": "koice.js-binary",
-  "version": "0.0.2",
+  "name": "koice-cli",
+  "version": "0.0.3",
   "description": "",
   "main": "dist/index.js",
   "bin": "dist/index.js",
@@ -17,14 +17,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Hexona69/koice.js-binary.git"
+    "url": "git+https://github.com/Hexona69/koice-cli.git"
   },
   "author": "Hexona",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Hexona69/koice.js-binary/issues"
+    "url": "https://github.com/Hexona69/koice-cli/issues"
   },
-  "homepage": "https://github.com/Hexona69/koice.js-binary#readme",
+  "homepage": "https://github.com/Hexona69/koice-cli#readme",
   "dependencies": {
     "argparse": "^2.0.1",
     "delay": "^5.0.0",
@@ -38,12 +38,5 @@
     "@types/fluent-ffmpeg": "^2.1.20",
     "@types/node": "^18.11.17",
     "@types/readline-sync": "^1.4.4"
-  },
-  "pkg": {
-    "scripts": "dist/**/*.js",
-    "targets": [
-      "node16-macos-x64"
-    ],
-    "outputPath": "build"
   }
 }
