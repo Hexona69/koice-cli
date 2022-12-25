@@ -10,7 +10,8 @@
     "clean": "rimraf dist/*",
     "make": "npm run clean && npm run compile",
     "build-clean": "rimraf build/*",
-    "build-darwin": "npm run make && npm run build-clean && nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target mac --build --fake-argv --output build/koice-darwin-amd64",
+    "build-darwin-amd64": "npm run make && npm run build-clean && nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target mac --build --fake-argv --output build/koice-darwin-amd64",
+    "build-darwin-arm64": "npm run make && npm run build-clean && nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target mac --build --fake-argv --output build/koice-darwin-arm64",
     "build-win": "npm run make && npm run build-clean && nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target windows --build --fake-argv --output build/koice-windows-amd64 --ico assets/icon.ico",
     "build-linux": "npm run make && npm run build-clean && nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target linux --build --fake-argv --output build/koice-linux-amd64"
   },
