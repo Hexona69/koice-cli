@@ -13,12 +13,12 @@ const parser = new ArgumentParser({
     epilog: 'Have fun streaming'
 });
 
-parser.add_argument('token', {
+parser.add_argument('-t', '--token', {
     help: 'Your KOOK bot token',
     type: 'str'
 })
 
-parser.add_argument('channel', {
+parser.add_argument('-c', '--channel', {
     help: 'The voice channel to stream audio to',
     type: 'str'
 })
@@ -27,6 +27,8 @@ parser.add_argument('-i', '--input', {
     help: 'The path to a local file to start streaming with',
     type: 'str'
 })
+
+const rl = readline.createInterface(process.stdin, process.stdout);
 
 const args = parser.parse_args()
 
@@ -45,56 +47,101 @@ const stream = new Stream.Readable({
     },
 })
 
+function shuffle(array: any[]) {
+    let currentIndex = array.length, randomIndex;
+
+    // While there remain elements to shuffle.
+    while (currentIndex != 0) {
+
+        // Pick a remaining element.
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+    }
+
+    return array;
+}
+
 var paused: boolean = false;
 var queue: string[] = [];
 
+function write(content: string) {
+    process.stdout.cursorTo(0);
+    process.stdout.write(content + "\n> ");
+}
+
 (async () => {
+
+    if (!args.token) {
+        write("Enter your KOOK bot token");
+        args.token = await rl.question('> ');
+    }
+    if (!args.channel) {
+        write("Enter the channel to stream to");
+        args.channel = await rl.question('> ');
+    }
+
     const voice = new koice(args.token);
 
     voice.connectWebSocket(args.channel);
 
     await voice.startStream(stream);
 
-    console.log(`Connected to channel ${args.channel} as ${args.token}`);
+    write(`Connected to channel ${args.channel} as ${args.token}`);
 
     var skipOnce = false;
     if (args.input) {
         skipOnce = true;
         input = args.input
-        console.log('Enter the path to a new audio file to switch song');
+        write('Enter the path to a new audio file to add it to queue');
     } else {
-        console.log('Enter the path to a audio file to start streaming')
+        write('Enter the path to a audio file to start streaming')
     }
-
-    const rl = readline.createInterface(process.stdin, process.stdout);
+    write(`Send "help" for command list`);
     while (true) {
         if (skipOnce) skipOnce = false;
-        else input = await rl.question('')
-        if (fs.existsSync(input)) {
+        else input = await rl.question('> ')
+        const path = input.trim().replace(/^['"](.*)['"]$/, '$1').trim();
+        if (fs.existsSync(path)) {
             if (previousStream) {
-                queue.push(input);
-                console.log(`Added ${input} to queue`);
+                queue.push(path);
+                write(`Added ${path} to queue`);
             } else {
-                await playback(input);
+                await playback(path);
             }
         } else {
             switch (input.toLowerCase()) {
+                case 'help':
+                    write(`Command List:
+    pause                        Pause the stream
+    resume                       Resume the stream
+    skip                         Skip current file
+    random, suffle               Randomize the queue
+    queue                        See current queue`);
+                    break;
                 case 'skip':
                     await next();
                     break;
+                case 'suffle':
+                case 'random':
+                    queue = shuffle(queue);
+                    break;
                 case 'pause':
-                    console.log("Stream paused");
+                    write("Stream paused");
                     paused = true;
                     break;
                 case 'resume':
-                    console.log("Stream resumed");
+                    write("Stream resumed");
                     paused = false;
                     break;
                 case 'queue':
-                    console.log('Queue:\n    ' + queue.join('\n    '));
+                    write('Queue:\n    ' + queue.join('\n    '));
                     break;
                 default:
-                    console.log(`Cannot recognize file or command "${input}"`);
+                    write(`Cannot recognize file or command "${input}"`);
                     break;
             }
         }
@@ -104,17 +151,17 @@ var queue: string[] = [];
 async function next() {
     if (queue.length) {
         const nextup = queue.shift();
-        console.log("Next up: " + nextup);
+        write("Next up: " + nextup);
         if (nextup) await playback(nextup);
     } else {
-        console.log('Queue is empty!');
+        write('Queue is empty!');
     }
 }
 
 async function playback(file: string) {
-    // console.log(file);
+    // write(file);
     if (previousStream) {
-        console.log(`Stopping prevoius stream...`);
+        write(`Stopping prevoius stream...`);
         previousStream = false;
         await delay(200);
         ffmpegInstance?.kill("SIGSTOP");
@@ -125,12 +172,12 @@ async function playback(file: string) {
         // return;
     }
 
-    // console.log(444444);
-    // console.log(5555555);
+    // write(444444);
+    // write(5555555);
     previousStream = true;
     var fileC = fs.createReadStream(file);
     // fileP = fs.createReadStream(file);
-    console.log(`Transcoding "${file}"`);
+    write(`Transcoding "${file}"`);
     ffmpegInstance = ffmpeg()
         .input(fileC)
         .audioCodec('pcm_u8')
@@ -157,13 +204,13 @@ async function playback(file: string) {
         // var rate = 11025;
         var rate = 24000;
         while (Date.now() - lastRead < 2000);
-        console.log(`Start streaming: "${file}"`);
+        write(`Start streaming: "${file}"`);
         while (previousStream && now <= buffer.length) {
             if (!paused) {
                 lastRead = Date.now();
                 const chunk = buffer.subarray(now, now + rate);
-                // console.log(file);
-                // console.log(chunk);
+                // write(file);
+                // write(chunk);
                 if (previousStream && now <= buffer.length) {
                     stream.push(chunk);
                 }
@@ -174,7 +221,7 @@ async function playback(file: string) {
             }
             await delay(250);
         }
-        console.log("Stream ended");
+        write("Stream ended");
         if (previousStream) {
             await next();
         }
