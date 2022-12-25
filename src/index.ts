@@ -127,7 +127,9 @@ function write(content: string) {
                     break;
                 case 'suffle':
                 case 'random':
+                    write('Suffling queue');
                     queue = shuffle(queue);
+                    write('Queue:\n    ' + queue.join('\n    '));
                     break;
                 case 'pause':
                     write("Stream paused");
@@ -136,6 +138,10 @@ function write(content: string) {
                 case 'resume':
                     write("Stream resumed");
                     paused = false;
+                    break;
+                case 'clear':
+                    write("Queue cleared");
+                    queue = [];
                     break;
                 case 'queue':
                     write('Queue:\n    ' + queue.join('\n    '));
