@@ -30,7 +30,8 @@
     "delay": "^5.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "koice": "^0.1.11",
-    "readline-sync": "^1.4.10"
+    "readline-sync": "^1.4.10",
+    "upath": "^2.0.1"
   },
   "devDependencies": {
     "@types/argparse": "^2.0.10",

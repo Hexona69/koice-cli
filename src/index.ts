@@ -4,7 +4,8 @@ import { PassThrough, Stream } from 'stream';
 import * as fs from 'fs';
 import * as readline from 'readline/promises';
 import delay from 'delay';
-import ffmpeg from 'fluent-ffmpeg';
+import ffmpeg, { ffprobe } from 'fluent-ffmpeg';
+import upath from 'upath';
 
 process.argv[1] = "koice";
 
@@ -106,11 +107,29 @@ function write(content: string) {
         else input = await rl.question('> ')
         const path = input.trim().replace(/^['"](.*)['"]$/, '$1').trim();
         if (fs.existsSync(path)) {
-            if (previousStream) {
-                queue.push(path);
-                write(`Added ${path} to queue`);
+            if (fs.lstatSync(path).isDirectory()) {
+                fs.readdirSync(path).forEach((file) => {
+                    const fullPath = upath.join(path, file);
+                    ffprobe(fullPath, async (err, data) => {
+                        if (err) return;
+                        if (data.streams.map(val => val.codec_type).includes('audio')) {
+                            if (previousStream) {
+                                queue.push(fullPath);
+                                write(`Added ${fullPath} to queue`);
+                            } else {
+                                await playback(fullPath);
+                            }
+                        }
+                        // console.log(data.streams.map(val => val.codec_type));
+                    })
+                })
             } else {
-                await playback(path);
+                if (previousStream) {
+                    queue.push(path);
+                    write(`Added ${path} to queue`);
+                } else {
+                    await playback(path);
+                }
             }
         } else {
             switch (input.toLowerCase()) {
@@ -174,7 +193,7 @@ async function playback(file: string) {
     if (previousStream) {
         write(`Stopping prevoius stream...`);
         previousStream = false;
-        await delay(150);
+        await delay(20);
         ffmpegInstance?.kill("SIGSTOP");
         fileP?.removeAllListeners();
         fileP?.destroy();
@@ -203,7 +222,7 @@ async function playback(file: string) {
     // .outputFormat('opus');
     ffmpegInstance
         .stream(fileP)
-    await delay(100);
+    // await delay(50);
     var bytes = 0;
     var bfs: any[] = [];
     fileP.on('data', (chunk) => {
@@ -213,15 +232,13 @@ async function playback(file: string) {
         var now = 0;
         var buffer = Buffer.concat(bfs);
         // var rate = 11025;
-        var rate = 12000;
-        while (Date.now() - lastRead < 150);
+        var rate = 965;
+        while (Date.now() - lastRead < 20);
         write(`Start streaming: "${file}"`);
         while (previousStream && now <= buffer.length) {
             if (!paused) {
                 lastRead = Date.now();
                 const chunk = buffer.subarray(now, now + rate);
-                // write(file);
-                // write(chunk);
                 if (previousStream && now <= buffer.length) {
                     stream.push(chunk);
                 }
@@ -230,11 +247,19 @@ async function playback(file: string) {
                 }
                 now += rate;
             }
-            await delay(125);
+            await delay(10);
         }
         write("Stream ended");
         if (previousStream) {
             await next();
+            previousStream = false;
+            await delay(20);
+            ffmpegInstance?.kill("SIGSTOP");
+            fileP?.removeAllListeners();
+            fileP?.destroy();
+            // await delay(100);
+            fileP = new PassThrough();
+            // return;
         }
     });
 }
