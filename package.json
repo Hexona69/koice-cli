@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "compile": "tsc && copyfiles -u 1 \"src/**/*\" -e \"src/**/*.ts\" dist",
-    "clean": "rimraf dist/*",
+    "clean": "rimraf dist/",
     "make": "npm run clean && npm run compile",
     "build-clean": "rimraf build/*",
     "build-darwin-amd64": "npm run make && npm run build-clean && nexe dist/index.js --resource \"./node_modules/koice/dist/msg.json\" --name koice --target mac --build --fake-argv --output build/koice-darwin-amd64",

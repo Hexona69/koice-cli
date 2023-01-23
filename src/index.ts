@@ -74,6 +74,7 @@ function write(content: string) {
     process.stdout.write(content + "\n> ");
 }
 
+let isRepeat = false;
 (async () => {
 
     if (!args.token) {
@@ -138,6 +139,7 @@ function write(content: string) {
     pause                        Pause the stream
     resume                       Resume the stream
     skip                         Skip current file
+    repeat                       Repeat current file infinitely
     clear                        Clear queue
     random, suffle               Randomize the queue
     list, queue                  See current queue`);
@@ -170,6 +172,15 @@ function write(content: string) {
                     break;
                 case 'exit':
                     process.exit(0);
+                case 'repeat':
+                    if (isRepeat) {
+                        write(`Stop repeat`);
+                        isRepeat = false;
+                    } else {
+                        write(`Start repeat`);
+                        isRepeat = true;
+                    }
+                    break;
                 default:
                     write(`Cannot recognize file or command "${input}"`);
                     break;
@@ -179,7 +190,9 @@ function write(content: string) {
 })()
 
 async function next() {
-    if (queue.length) {
+    if (isRepeat) {
+        await playback(queue[0]);
+    } else if (queue.length) {
         const nextup = queue.shift();
         write("Next up: " + nextup);
         if (nextup) await playback(nextup);
