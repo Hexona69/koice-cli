@@ -191,13 +191,17 @@ let isRepeat = false;
 
 async function next() {
     if (isRepeat) {
-        await playback(queue[0]);
-    } else if (queue.length) {
-        const nextup = queue.shift();
-        write("Next up: " + nextup);
-        if (nextup) await playback(nextup);
+        if (queue.length) await playback(queue[0]);
+        else write('Queue is empty!');
     } else {
-        write('Queue is empty!');
+        queue.shift();
+        if (queue.length) {
+            const nextup = queue[0];
+            write("Next up: " + nextup);
+            if (nextup) await playback(nextup);
+        } else {
+            write('Queue is empty!');
+        }
     }
 }
 
